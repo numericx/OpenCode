@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AI coding assistants (OpenCode plugins)
+node_modules/
+package.json
+package-lock.json
+bun.lock
+.gitignore
