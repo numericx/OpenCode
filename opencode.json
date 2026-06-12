@@ -20,7 +20,7 @@
       "git diff*": "allow",
       "git log*": "allow",
       "git show*": "allow",
-      "git checkout*": "allow",
+      "git checkout*": "ask",
       "git add*": "ask",
       "git commit*": "ask",
       "git push*": "ask",
