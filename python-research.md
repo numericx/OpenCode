@@ -113,15 +113,15 @@ docstring-code-format = true
 | **Local / IDE** | `pyright` via Pylance in VS Code or built-in PyCharm | Instant feedback, faster for large repos |
 | **Strict mode** | `--disallow-untyped-defs --disallow-any-generics` | Use for libraries; gradual typing for large codebases |
 | **Runtime validation** | `pydantic` (standard) / `typeguard` (lightweight) | Type hints are not enforced at runtime |
-| **Python version** | `>=3.12` minimum | Enables PEP 695 (Type parameter syntax), PEP 754 (`TypeIs`), PEP 742 (`TypeGuard`) |
+| **Config management** | `pydantic-settings` | Reads from env vars, `.env` files, and secrets with validation |
+| **Python version** | `>=3.13` recommended / `>=3.12` minimum | Enables PEP 695 (Type parameter syntax), PEP 742 (`TypeIs`), PEP 647 (`TypeGuard`) |
 
 **Key typing features enabled by Python 3.12+:**
 
 - **PEP 695** (Type Parameter Syntax): `def identity[T](x: T) -> T`
-- **PEP 742** (`TypeGuard`): Narrow types by subtype relationship
-- **PEP 754** (`TypeIs`): Narrow types by identity check
+- **PEP 742** (`TypeIs`): Narrow types by identity/instance check
+- **PEP 647** (`TypeGuard`): Narrow types by subtype relationship
 - **PEP 646** (`TypeVarTuple`): Generic tuples with variable length
-- **PEP 723** (Inline script metadata): Single-file scripts with dependency declarations
 
 **Example mypy `pyproject.toml` config:**
 
@@ -150,6 +150,7 @@ ignore_missing_imports = false
 | **Async testing** | `pytest-asyncio` | Mature; supports auto-marking for all async |
 | **Parallel execution** | `pytest-xdist` | Essential for large suites (`-n auto`) |
 | **Snapshot testing** | `syrupy` | Alternative to manual assertions |
+| **Dependency checking** | `deptry` | Detects unused, missing, or transitive dependencies |
 | **Test data** | `factory-boy` (models) / `faker` (generic) | |
 | **Multi-Python testing** | `tox` or `nox` | |
 | **Target coverage** | 80-95% | Branch coverage recommended |
@@ -173,6 +174,24 @@ markers = [
     "slow: marks tests as slow (deselect with -m 'not slow')",
     "integration: marks test as integration test",
     "serial: marks test that must run serially",
+]
+```
+
+**Coverage configuration in `pyproject.toml`:**
+
+```toml
+[tool.coverage.run]
+source = ["src/myproject"]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
 ]
 ```
 
@@ -234,8 +253,8 @@ myproject/
 │   ├── conftest.py
 │   └── api/
 ├── docs/
-│   ├── mkdocs.yml
-│   └── docs/
+│   └── index.md
+├── mkdocs.yml
 ├── .pre-commit-config.yaml
 ├── Dockerfile
 └── README.md
@@ -327,25 +346,27 @@ jobs:
 ```yaml
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.0
+    rev: v0.11.0    # bump with pre-commit autoupdate
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.15.0    # bump with pre-commit autoupdate
     hooks:
       - id: mypy
         additional_dependencies: [pydantic, types-requests]
 ```
+
+> Run `pre-commit autoupdate` periodically to keep hook revisions current.
 
 ### CI Best Practices
 
 | Practice | Recommendation |
 |----------|---------------|
 | **Python version management** | Use `uv` (fastest setup) |
-| **Parallel test execution** | `uv run pytest -n auto` (pytest-xdist) |
+| **Parallel test execution** | `uv run pytest -n auto` (pytest-xdist) — mark serial tests with `@pytest.mark.serial` and run `pytest -m "not serial" -n auto` |
 | **Multiple Python versions** | Matrix build (3.12, 3.13) |
 | **Coverage upload** | `codecov/codecov-action@v5` |
 | **Pre-commit** | Use locally + verify in CI |
@@ -366,13 +387,14 @@ repos:
 | **pytest** | Functional bugs | `pytest` |
 | **hypothesis** | Edge cases | `pytest` (with hypothesis included) |
 | **safety** | Dependency vulnerability scanning | `safety check -r requirements.txt` |
+| **pip-audit** | Dependency vulnerability scanning (PyPI advisory DB) | `pip-audit` |
 
 ### Security scanning strategy
 
 1. **`ruff`** catches basic security issues (`S` rules): hard-coded passwords, SQL injection, use of `eval()`, weak crypto
 2. **`semgrep`** for deeper static analysis with pattern matching (AST-based, not regex) + custom rule support
 3. **`bandit`** specifically for Python-focused security scanning when a dedicated scanner is needed
-4. Dependency vulnerability checks: `safety check` against known vulnerability databases
+4. Dependency vulnerability checks: `pip-audit` (recommended, uses PyPI advisory DB) or `safety check` against known vulnerability databases
 
 ---
 
@@ -392,6 +414,8 @@ repos:
 | **Async testing** | `pytest-asyncio` | |
 | **Parallel testing** | `pytest-xdist` | `-n auto` |
 | **Snapshot testing** | `syrupy` | |
+| **Dependency checking** | `deptry` | Unused/missing/transitive deps |
+| **Security scanning** | `ruff` (S rules) + `pip-audit` | Covers code + dependencies |
 | **Pre-commit** | `pre-commit` | |
 | **Docs** | `mkdocs-material` / `sphinx` | Depends on project type |
 | **Build backend** | `hatchling` | Or `setuptools` for universal compat |
@@ -401,11 +425,11 @@ repos:
 
 ## Key Trends (2025-2026)
 
-1. **The Astral ecosystem dominates.** `uv` + `ruff` + `ty` (emerging type checker from Astral) is becoming the default toolchain. One binary for linting, formatting, imports, and docstring checking.
+1. **The Astral ecosystem dominates.** `uv` + `ruff` is the default toolchain. `ty` (Astral's experimental type checker in Rust) may eventually replace mypy if it reaches GA, but mypy remains the CI standard for now.
 
 2. **PEP 735 dependency groups.** Native dev dependency groups in `pyproject.toml` eliminate legacy hacks with `extras` or separate `requirements-dev.txt` files.
 
-3. **Type hinting is mainstream.** New projects should use type hints from day one. Python 3.12+ enables PEP 695 (Type Parameter Syntax) and PEP 754 (`TypeIs`).
+3. **Type hinting is mainstream.** New projects should use type hints from day one. Python 3.12+ enables PEP 695 (Type Parameter Syntax) and PEP 742 (`TypeIs`).
 
 4. **Python 3.12+ is the minimum.** All tooling targets 3.12+; 3.13 adoption is accelerating. No one should be starting new projects on anything older.
 
@@ -430,10 +454,10 @@ For a new Python project in 2026, the setup workflow should be:
 uv init myproject --lib
 
 # 2. Add runtime dependencies
-uv add httpx pydantic
+uv add httpx pydantic pydantic-settings
 
 # 3. Add dev dependencies
-uv add --dev ruff pytest mypy pytest-cov hypothesis
+uv add --dev ruff pytest mypy pytest-cov hypothesis deptry pip-audit
 uv add --group docs mkdocs-material
 
 # 4. Configure tools in pyproject.toml (see sections above)
@@ -443,13 +467,15 @@ uv add --dev pre-commit
 pre-commit install
 
 # 6. Create src layout (uv may do this by default)
-mkdir -p src myproject tests
+mkdir -p src/myproject tests
 
 # 7. Run tooling
 uv run ruff check .          # Lint
 uv run ruff format .          # Format
 uv run mypy src/              # Type check
+uv run deptry src/            # Dependency issues
 uv run pytest --cov=src/      # Test
+uv run pip-audit              # Vulnerability scan
 uv run mkdocs serve           # Docs
 ```
 
