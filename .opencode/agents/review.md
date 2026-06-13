@@ -129,3 +129,9 @@ Each finding includes:
 ```
 
 > **Note**: If automated checks passed cleanly, the report leans on higher-level analysis. If automated checks found issues, those take priority.
+
+### Next Steps
+
+After the review, suggest the user run:
+- **`@fix`** — to fix specific bugs found in the review
+- **`@refactor`** — to restructure problematic code identified in the review
