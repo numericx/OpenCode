@@ -150,3 +150,9 @@ uv run ruff check . --select D   # docstring conventions enforced
 | Docstring style | Google (default), NumPy (scientific), Sphinx (advanced) |
 | Enforcement | `ruff D-rules` with `convention = "google"` |
 | README | Project overview, install, quick start, links to docs |
+
+### Next Steps
+
+After setting up documentation, suggest:
+- **`@cicd`** — add a docs build step to the CI pipeline
+- **`@quality`** — enforce docstring conventions with ruff D-rules
