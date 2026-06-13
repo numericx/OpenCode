@@ -24,6 +24,8 @@ OpenCode provides intelligent assistance for software development tasks includin
 The repository includes configuration files that define:
 - Permission controls for file access, editing, and bash commands (`opencode.json`)
 - Behavioral guidelines for AI coding assistance (`AGENTS.md`)
+- Python development best practices reference (`python-research.md`)
+- Specialized subagents for Python development (`.opencode/agents/`)
 - Frontend design skills for creating distinctive user interfaces
 
 ## Getting Started
@@ -36,6 +38,24 @@ The repository includes configuration files that define:
 2. Configure permissions in `opencode.json` according to your security requirements
 
 3. Run OpenCode to start interacting with the AI coding assistant
+
+## Python Development Agents
+
+OpenCode ships with specialized Python subagents that encapsulate modern Python tooling (uv, ruff, mypy, pytest, mkdocs):
+
+| Agent | Invoke with | Role |
+|-------|-------------|------|
+| **@ask** | `@ask how does this function work?` | Answer questions and explain code — strictly read-only, no changes ever |
+| **@review** | `@review src/myproject` | Full-stack code review: lint, types, tests, security, architecture, and design — read-only |
+| **@fix** | `@fix` (paste code or copy to clipboard) | Debug logic, syntax, and runtime errors — reads from clipboard or inline context, shows fixed code — read-only |
+| **@scaffold** | `@scaffold set up a new project` | Initialize projects with uv, manage dependencies, create `src/` layout, configure `pyproject.toml` |
+| **@quality** | `@quality fix linting issues` | Configure and run ruff (lint + format), mypy type checking, pre-commit hooks |
+| **@test** | `@test write tests for the API` | Set up pytest, write tests, manage coverage, run deptry dependency checks |
+| **@docs** | `@docs set up mkdocs` | Configure MkDocs Material or Sphinx, enforce docstring conventions, maintain README |
+| **@cicd** | `@cicd add a CI pipeline` | Create GitHub Actions workflows, Dockerfiles, PyPI publish with trusted publishers |
+| **@security** | `@security audit the codebase` | Run ruff S-rules, pip-audit, and bandit (read-only — reports findings, never edits) |
+
+Each agent embeds the `python-research.md` guidelines and `AGENTS.md` behavioral rules directly in its prompt, and has per-role restricted permissions (e.g., @security is read-only, @docs only edits documentation files).
 
 ## Security
 
