@@ -115,4 +115,10 @@ For each finding include:
 uv run ruff check . --select S     # no security lint issues
 uv run pip-audit                   # no known vulnerabilities
 uv run bandit -r src/              # no security hotspots
+
+### Next Steps
+
+After the security audit, suggest:
+- **`@fix`** — to fix any security vulnerabilities found
+- **`@cicd`** — add security scanning to the CI pipeline
 ```
