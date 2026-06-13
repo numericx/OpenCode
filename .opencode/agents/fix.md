@@ -94,3 +94,9 @@ Present the result in this format:
 
 > **Note**: The agent does not edit files. Copy the fixed code above and paste it where needed.
 ````
+
+### Next Steps
+
+After fixing the code, suggest:
+- **`@test`** — write a test that reproduces the bug to prevent regression
+- **`@review`** — run a full code review if the fix uncovered deeper issues
