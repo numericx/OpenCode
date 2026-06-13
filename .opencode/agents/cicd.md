@@ -154,3 +154,10 @@ docker run <project>
 git tag v0.1.0
 git push origin v0.1.0
 ```
+
+### Next Steps
+
+After setting up CI/CD, suggest:
+- **`@test`** — add benchmark tests to prevent performance regressions in CI
+- **`@security`** — add security scanning to the CI pipeline
+- **`@env`** — ensure Docker configuration matches the production environment
