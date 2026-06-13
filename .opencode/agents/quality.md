@@ -176,3 +176,9 @@ uv run pre-commit run --all-files  # hooks pass
 ```
 
 > Security scanning (ruff `S` rules, pip-audit, bandit) is handled by the **`@security`** agent — run it before releases.
+
+### Next Steps
+
+After fixing lint and type issues, suggest:
+- **`@test`** — write or update tests for the codebase
+- **`@security`** — run a security audit before the first release
