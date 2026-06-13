@@ -173,3 +173,9 @@ uv run deptry src/                       # zero dependency issues
 ```
 
 Target coverage: **80-95%** (branch coverage recommended).
+
+### Next Steps
+
+After setting up tests, suggest:
+- **`@cicd`** — add CI pipeline that runs tests on push/PR
+- **`@docs`** — add test coverage badge and test documentation
